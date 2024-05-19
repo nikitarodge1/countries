@@ -24,16 +24,32 @@ const Tile = ({ FlagUrl, countryName, altFlagName }) => {
 function Countries() {
     const API_URL = "https://restcountries.com/v3.1/all";
     const [countries, setCountries] = useState([]);
+    const [formData,setFormData] = useState('');
+    const [filteredCountries,setFilteredCountries] =useState([]);
 
     useEffect(() => {
         fetch(API_URL)
             .then((response) => response.json())
-            .then((data) => setCountries(data))
+            .then((data) => {
+                setCountries(data);
+                setFilteredCountries(data)
+            })
             .catch((error)=> console.error("Error occured:",error));
     }, [])
 
     console.log({ countries });
+
+    function handleChange (e){
+        const countryName = e.target.value
+        let filteredCountry = countries.filter(country => 'country.name.common'.con === "ind")
+        console.log(filteredCountry)
+    }
+ 
+    
     return (
+    <>
+    
+<input type="search" id="site-search" name="q" onChange={(e)=>handleChange(e)} value={formData}/> 
         <div
             style={{
                 display: "flex",
@@ -44,10 +60,11 @@ function Countries() {
                 gap: "10px",
 
             }}>
-            {countries.map((country) => (
+            {filteredCountries.map((country) => (
                 <Tile key={country.cca3} FlagUrl={country.flags.png} countryName={country.name.common} altFlagName={country.flags.alt} />
             ))}
         </div>
+        </>
     );
 }
 
