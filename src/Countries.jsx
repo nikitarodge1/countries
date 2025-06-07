@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
+// Reusable Tile component with your styles
 const Tile = ({ FlagUrl, countryName, altFlagName }) => (
   <div
-    className="countryCard" 
+    className="countryCard"
     style={{
       display: "flex",
       justifyContent: "center",
@@ -15,55 +16,87 @@ const Tile = ({ FlagUrl, countryName, altFlagName }) => (
       width: "200px",
     }}
   >
-    <img src={FlagUrl} alt={altFlagName} style={{ width: "100px", height: "100px" }} />
+    <img
+      src={FlagUrl}
+      alt={altFlagName}
+      style={{ width: "100px", height: "100px", objectFit: "cover" }}
+    />
     <h2>{countryName}</h2>
   </div>
 );
 
 function Countries() {
   const [countries, setCountries] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("https://restcountries.com/v3.1/all")
+    fetch(
+      "https://countries-search-data-prod-812920491762.asia-south1.run.app/countries"
+    )
       .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to fetch countries data");
-        }
+        if (!response.ok)
+          throw new Error(`HTTP error! status: ${response.status}`);
         return response.json();
       })
-      .then((data) => setCountries(data))
-      .catch((error) => {
-        console.error("Error occurred:", error); 
-        setError(error.message);
+      .then((data) => {
+        setCountries(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
       });
   }, []);
 
-  const filteredCountries = countries.filter(country =>
-    country.name.common.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filter by 'common' field (country name)
+  const filteredCountries = countries.filter((country) => {
+    const name = country.common || "";
+    return name.toLowerCase().includes(searchTerm.toLowerCase());
+  });
+
+  if (loading) return <p>Loading countries...</p>;
+  if (error) return <p>Error occurred: {error}</p>;
 
   return (
-    <div>
+    <div style={{ padding: "20px" }}>
+      <h1 style={{ textAlign: "center" }}>Countries</h1>
       <input
         type="text"
-        id="searchBar"
-        placeholder="Search for a country..."
+        placeholder="Search countries..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        style={{ marginBottom: "10px", padding: "8px", fontSize: "16px",border: "1px solid grey", display: "block", margin: "0 auto", width: "60%",borderRadius:"5px" }} 
+        style={{
+          padding: "8px",
+          width: "60%",
+          margin: "0 auto 20px auto",
+          display: "block",
+          fontSize: "16px",
+          border: "1px solid grey",
+          borderRadius: "5px",
+        }}
       />
-      {error && <p style={{ color: "red", textAlign: "center" }}>{error}</p>}
-      <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "10px" }}>
-        {filteredCountries.length > 0 && filteredCountries.map((country) => (
-          <Tile
-            key={country.cca3}
-            FlagUrl={country.flags.png}
-            countryName={country.name.common}
-            altFlagName={country.flags.alt || `Flag of ${country.name.common}`}
-          />
-        ))}
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          justifyContent: "center",
+          gap: "20px",
+        }}
+      >
+        {filteredCountries.length > 0 ? (
+          filteredCountries.map((country, index) => (
+            <Tile
+              key={index}
+              FlagUrl={country.png}
+              countryName={country.common}
+              altFlagName={`Flag of ${country.common}`}
+            />
+          ))
+        ) : (
+          <p style={{ textAlign: "center" }}>No countries found.</p>
+        )}
       </div>
     </div>
   );
