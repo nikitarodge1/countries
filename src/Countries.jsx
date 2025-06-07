@@ -45,6 +45,8 @@ function Countries() {
         setLoading(false);
       })
       .catch((err) => {
+        // Add console.error here to satisfy the Cypress test for error logging
+        console.error("API fetch error:", err);
         setError(err.message);
         setLoading(false);
       });
