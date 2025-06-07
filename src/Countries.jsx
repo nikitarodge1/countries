@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-// Reusable Tile component with your styles
+
 const Tile = ({ FlagUrl, countryName, altFlagName }) => (
   <div
     className="countryCard"
@@ -45,14 +45,13 @@ function Countries() {
         setLoading(false);
       })
       .catch((err) => {
-        // Add console.error here to satisfy the Cypress test for error logging
         console.error("API fetch error:", err);
         setError(err.message);
         setLoading(false);
       });
   }, []);
 
-  // Filter by 'common' field (country name)
+  
   const filteredCountries = countries.filter((country) => {
     const name = country.common || "";
     return name.toLowerCase().includes(searchTerm.toLowerCase());
